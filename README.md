@@ -152,17 +152,6 @@ docker compose up --build
 
 ---
 
-## Snapshots de prod (assets non-secrets)
-
-Le dossier [`prod-snapshots/`](prod-snapshots/) centralise les `server-icon.png`
-de chaque back-end ainsi que la configuration **MiniMOTD** du proxy Velocity
-(MOTD principal + variantes par mode de jeu). Pratique pour visualiser le MOTD
-actuellement en service ou repartir d'une base saine après une modif foireuse.
-
-Voir [`prod-snapshots/README.md`](prod-snapshots/README.md).
-
----
-
 ## Licence
 
 Ce dépôt est sous licence [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
