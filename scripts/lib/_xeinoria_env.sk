@@ -1,0 +1,24 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# _xeinoria_env.sk — lecture de variables d'environnement Docker via skript-reflect.
+#
+#   • Préfixe "_xeinoria_" pour éviter les conflits avec d'autres scripts.
+#   • Utilise java.lang.System.getenv(name) (méthode statique, lecture seule).
+#
+# Usage depuis un autre script :
+#     set {_c} to _xeinoria_env("XEINORIA_CONTAINER")
+#     if {_c} is "":
+#         set {_c} to "xeinoria-dev"    # fallback
+#
+# Auteur : Xeinoria Studio — Licence : CC BY-NC-SA 4.0
+# ─────────────────────────────────────────────────────────────────────────────
+
+import:
+    java.lang.System
+
+# Retourne la valeur de la variable d'environnement {_name}, ou "" si non définie.
+# Renvoie toujours une chaîne (jamais <none>), pour simplifier l'appel.
+function _xeinoria_env(name: text) :: text:
+    set {_v} to System.getenv({_name})
+    if {_v} is not set:
+        return ""
+    return "%{_v}%"

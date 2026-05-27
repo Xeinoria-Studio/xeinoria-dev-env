@@ -135,6 +135,11 @@ RUN curl -fsSL \
     "https://cdn.modrinth.com/data/9eGKb6K1/versions/Qnk9puxN/voicechat-bukkit-2.6.17.jar" \
     -o plugins/voicechat-bukkit-2.6.17.jar
 
+# SkinsRestorer 15.12.0 (Bukkit/Paper build, supporte 26.1.x)
+RUN curl -fsSL \
+    "https://cdn.modrinth.com/data/TsLS8Py5/versions/2PjHGlwd/SkinsRestorer.jar" \
+    -o plugins/SkinsRestorer-15.12.0.jar
+
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 COPY entrypoint.sh /entrypoint.sh
 # Strip potential CRLF (Windows checkouts) and make executable.

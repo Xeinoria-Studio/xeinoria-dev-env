@@ -15,6 +15,9 @@ services:
     environment:
       JVM_XMX: "1G"
       JVM_XMS: "512M"
+      # Nom du conteneur, exposé aux scripts via _xeinoria_env("XEINORIA_CONTAINER")
+      # (utilisé par _xeinoria_welcome.sk pour afficher la commande docker attach)
+      XEINORIA_CONTAINER: "xeinoria-dev"
       # SkRedis — laissez vide (REDIS_HOST="") pour désactiver complètement le plugin
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"

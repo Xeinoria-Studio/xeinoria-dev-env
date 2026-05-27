@@ -9,10 +9,13 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 options:
-    container: xeinoria-dev
     sep: <dark_gray>----------------------------------------</dark_gray>
 
 on first join:
+    # ── Nom du conteneur Docker, lu via skript-reflect (lib/_xeinoria_env.sk) ─
+    set {_container} to _xeinoria_env("XEINORIA_CONTAINER")
+    if {_container} is "":
+        set {_container} to "xeinoria-dev"
     # ── Auto-op : seulement si aucun op n'existe encore ──────────────────────
     if {xeinoria.first_op_done} is not set:
         set {_has_op} to false
@@ -68,6 +71,7 @@ on first join:
     send mini message from "  <gray>•</gray> <click:open_url:'https://commandapi.jorel.dev/'><blue><u>CommandAPI 11.2.0</u></blue></click>" to player
     send mini message from "  <gray>•</gray> <click:open_url:'https://wiki.decentholograms.eu/'><blue><u>DecentHolograms 2.9.10</u></blue></click>" to player
     send mini message from "  <gray>•</gray> <click:open_url:'https://modrinth.com/plugin/simple-voice-chat'><blue><u>Simple Voice Chat 2.6.17</u></blue></click>" to player
+    send mini message from "  <gray>•</gray> <click:open_url:'https://modrinth.com/plugin/skinsrestorer'><blue><u>SkinsRestorer 15.12.0</u></blue></click>" to player
     send mini message from "  <gray>•</gray> <click:open_url:'https://placeholderapi.com/'><blue><u>PlaceholderAPI 2.12.2</u></blue></click>" to player
     send mini message from "  <gray>•</gray> <click:open_url:'https://hangar.papermc.io/TNE/VaultUnlocked'><blue><u>VaultUnlocked 2.17.0</u></blue></click> + <click:open_url:'https://hangar.papermc.io/TNE/TheNewEconomy'><blue><u>TheNewEconomy 0.1.4.0</u></blue></click>" to player
     send "" to player
@@ -75,7 +79,7 @@ on first join:
     send "" to player
 
     send mini message from "<gold>● Tutoriel Docker — console serveur</gold>" to player
-    send mini message from "  <gray>1. Depuis ton terminal hôte :</gray> <click:copy_to_clipboard:'docker attach {@container}'><hover:show_text:'<gray>Cliquer pour copier'><white><u>docker attach {@container}</u></white></hover></click>" to player
+    send mini message from "  <gray>1. Depuis ton terminal hôte :</gray> <click:copy_to_clipboard:'docker attach %{_container}%'><hover:show_text:'<gray>Cliquer pour copier'><white><u>docker attach %{_container}%</u></white></hover></click>" to player
     send mini message from "  <gray>2. Tu obtiens la console Minecraft → tape <white>op [Pseudo]</white>, <white>stop</white>, etc.</gray>" to player
     send mini message from "  <gray>3. Pour <yellow>quitter sans arrêter le serveur</yellow> :</gray> <white>Ctrl+P</white> <gray>puis</gray> <white>Ctrl+Q</white>" to player
     send mini message from "     <dark_gray>(Ctrl+C dans un attach <red>tue</red> le serveur — à éviter.)</dark_gray>" to player
