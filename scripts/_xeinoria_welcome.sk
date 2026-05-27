@@ -1,0 +1,92 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# _xeinoria_welcome.sk — script préfixé "_" pour être chargé tôt.
+#
+#   • Si aucun opérateur n'est défini ET qu'aucun joueur n'a encore été op auto,
+#     le premier joueur qui se connecte devient op (une fois, persistant).
+#   • Titre dès la connexion, puis 5 s plus tard, message complet dans le chat.
+#
+# Auteur : Xeinoria Studio — Licence : CC BY-NC-SA 4.0
+# ─────────────────────────────────────────────────────────────────────────────
+
+options:
+    prefix: <gold>[Xeinoria]<reset>
+    container: xeinoria-dev
+
+on load:
+    if {xeinoria.first_op_done} is not set:
+        set {xeinoria.first_op_done} to false
+
+on join:
+    # ── Auto-op du premier joueur si aucun op n'existe ───────────────────────
+    if {xeinoria.first_op_done} is false:
+        set {_has_op} to false
+        loop all offline players:
+            if loop-value is op:
+                set {_has_op} to true
+                exit loop
+        if {_has_op} is false:
+            op the player
+            set {xeinoria.first_op_done} to true
+            send "[xeinoria-dev] Auto-op : %player% (aucun opérateur préexistant)." to console
+            wait 1 tick
+            send "{@prefix} <green>Tu es désormais opérateur (auto-op, premier joueur connecté).<reset>" to player
+
+    # ── Titre immédiat ───────────────────────────────────────────────────────
+    send title "<aqua>Xeinoria Dev<reset>" with subtitle "<gray>Environnement de test Skript<reset>" to player for 4 seconds
+
+    # ── Message de bienvenue différé (laisse les plugins finir leur spam) ────
+    wait 5 seconds
+    if player is not online:
+        stop
+    send "" to player
+    send "<dark grey>------------------------------------------------------<reset>" to player
+    send "{@prefix} <white>Bienvenue, <yellow>%player%<white> !<reset>" to player
+    send "<grey>Cet environnement reproduit la stack Skript du réseau <aqua>Xeinoria<reset><grey>." to player
+    send "<grey>Tu peux y tester librement tes scripts avant production.<reset>" to player
+    send "" to player
+
+    send "<gold>* Documentation principale<reset>" to player
+    send "  <grey>- <link:https://docs.skriptlang.org/><blue>docs.skriptlang.org<reset> <dark grey>(Skript officiel)<reset>" to player
+    send "  <grey>- <link:https://skripthub.net/docs/><blue>skripthub.net/docs<reset> <dark grey>(recherche globale)<reset>" to player
+    send "  <grey>- <link:https://docs.skunity.com/><blue>docs.skunity.com<reset> <dark grey>(alternative SkUnity)<reset>" to player
+    send "" to player
+
+    send "<gold>* Addons Skript installés<reset> <dark grey>(clic -> doc)<reset>" to player
+    send "  <grey>- <link:https://docs.skriptlang.org/><blue>Skript 2.15.2<reset>" to player
+    send "  <grey>- <link:https://github.com/SkriptLang/skript-reflect><blue>skript-reflect 2.6.3<reset>" to player
+    send "  <grey>- <link:https://github.com/ShaneBeee/SkBee/wiki><blue>SkBee 3.22.0<reset>" to player
+    send "  <grey>- <link:https://github.com/JakeGBLP/Lusk/wiki><blue>Lusk 1.3.13<reset> <yellow>*<reset>" to player
+    send "  <grey>- <link:https://github.com/SkriptLang/skript-worldguard><blue>skript-worldguard 1.0.1<reset>" to player
+    send "  <grey>- <link:https://modrinth.com/plugin/skredis><blue>SkRedis 2.3.1<reset>" to player
+    send "  <grey>- <link:https://modrinth.com/plugin/skproxy><blue>SkProxy 2.4<reset>" to player
+    send "  <grey>- <link:https://github.com/APickledWalrus/skript-placeholders><blue>skript-placeholders 1.7.1<reset> <yellow>*<reset>" to player
+    send "  <grey>- <link:https://modrinth.com/plugin/skript-translate><blue>Skript-Translate 1.3<reset> <yellow>*<reset>" to player
+    send "  <grey>- <link:https://modrinth.com/plugin/skript-db><blue>skript-db 1.5.0<reset> <yellow>*<reset>" to player
+    send "" to player
+
+    send "<gold>* Dépendances natives<reset>" to player
+    send "  <grey>- <link:https://github.com/dmulloy2/ProtocolLib><blue>ProtocolLib 5.4.0<reset>" to player
+    send "  <grey>- <link:https://modrinth.com/plugin/packetevents><blue>packetevents 2.12.1<reset>" to player
+    send "  <grey>- <link:https://enginehub.org/worldedit/><blue>WorldEdit 7.4.3<reset> + <link:https://enginehub.org/worldguard/><blue>WorldGuard 7.0.16<reset>" to player
+    send "  <grey>- <link:https://luckperms.net/wiki><blue>LuckPerms 5.5.53<reset>" to player
+    send "  <grey>- <link:https://commandapi.jorel.dev/><blue>CommandAPI 11.2.0<reset>" to player
+    send "  <grey>- <link:https://wiki.decentholograms.eu/><blue>DecentHolograms 2.9.10<reset>" to player
+    send "  <grey>- <link:https://modrinth.com/plugin/simple-voice-chat><blue>Simple Voice Chat 2.6.17<reset>" to player
+    send "  <grey>- <link:https://placeholderapi.com/><blue>PlaceholderAPI 2.12.2<reset>" to player
+    send "  <grey>- <link:https://hangar.papermc.io/TNE/VaultUnlocked><blue>VaultUnlocked 2.17.0<reset> + <link:https://hangar.papermc.io/TNE/TheNewEconomy><blue>TheNewEconomy 0.1.4.0<reset>" to player
+    send "" to player
+    send "  <yellow>*<reset> <grey>marqué pour MC <= 1.21.4 mais charge sans souci visible sur Paper 26.1.2.<reset>" to player
+    send "" to player
+
+    send "<gold>* Tutoriel Docker — console serveur<reset>" to player
+    send "  <grey>1. Depuis ton terminal hôte :  <white>docker attach {@container}<reset>" to player
+    send "  <grey>2. Tu obtiens la console Minecraft -> tape <white>op [Pseudo]<reset><grey>, <white>stop<reset><grey>, etc." to player
+    send "  <grey>3. Pour <yellow>quitter sans arrêter le serveur<reset><grey> :  <white>Ctrl+P<reset> puis <white>Ctrl+Q<reset>" to player
+    send "     <dark grey>(Ctrl+C dans un attach <red>tue<dark grey> le serveur — à éviter.)<reset>" to player
+    send "" to player
+
+    send "<gold>* Crédits & licence<reset>" to player
+    send "  <grey>Image <aqua>xeinoria-dev-env<reset><grey> par <white>Xeinoria Studio<reset><grey>." to player
+    send "  <grey>Code sous <link:https://creativecommons.org/licenses/by-nc-sa/4.0/><blue>CC BY-NC-SA 4.0<reset><grey> — attribution requise, non commercial, partage à l'identique.<reset>" to player
+    send "  <grey>Merci aux auteurs des addons listés ci-dessus.<reset>" to player
+    send "<dark grey>------------------------------------------------------<reset>" to player

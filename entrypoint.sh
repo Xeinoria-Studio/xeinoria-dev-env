@@ -44,6 +44,37 @@ if [ -d "$EXTRA_DIR" ]; then
     done
 fi
 
+# ── SkRedis : génère la config depuis les variables d'environnement ──────────
+# Si REDIS_HOST est vide, on retire le jar pour éviter le spam d'erreurs au boot.
+SKREDIS_JAR=$(ls /server/plugins/SkRedis-*.jar 2>/dev/null | head -n1)
+if [ -n "$SKREDIS_JAR" ]; then
+    if [ -z "${REDIS_HOST:-}" ]; then
+        echo "[xeinoria-dev] REDIS_HOST vide — SkRedis désactivé."
+        rm -f "$SKREDIS_JAR"
+    else
+        mkdir -p /server/plugins/SkRedis
+        cat > /server/plugins/SkRedis/config.yml <<EOF
+config-version: 1
+update-check:
+  enabled: false
+  notify-admins: false
+  check-interval: 3600
+redis:
+  enable-default-connection: true
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT:-6379}
+  username: ${REDIS_USERNAME:-default}
+  password: ${REDIS_PASSWORD:-}
+  database: 0
+  ssl: false
+  allowSelfSignedCertificates: false
+  trustStorePath: ''
+  trustStorePassword: ''
+EOF
+        echo "[xeinoria-dev] SkRedis configuré : ${REDIS_HOST}:${REDIS_PORT:-6379}"
+    fi
+fi
+
 echo "[xeinoria-dev] Démarrage du serveur Paper..."
 exec java \
     -Xmx${JVM_XMX:-1G} \

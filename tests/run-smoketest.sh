@@ -21,11 +21,12 @@ trap cleanup EXIT
 
 echo "[smoketest] Lancement du conteneur $CONTAINER_NAME (image=$IMAGE)"
 
-# On monte uniquement le dossier tests dans le repertoire scripts Skript.
+# On monte le dossier tests + les scripts utilisateur du repo pour valider qu'ils parsent.
 # Le dossier global/ sera cloné automatiquement par l'entrypoint.
 docker run -d --name "$CONTAINER_NAME" \
     -e JVM_XMX=1G -e JVM_XMS=512M \
     -v "$SCRIPT_ROOT/tests:/server/plugins/Skript/scripts/tests:ro" \
+    -v "$SCRIPT_ROOT/scripts:/server/plugins/Skript/scripts/user:ro" \
     "$IMAGE" >/dev/null
 
 echo "[smoketest] Capture des logs (timeout=${TIMEOUT}s)…"

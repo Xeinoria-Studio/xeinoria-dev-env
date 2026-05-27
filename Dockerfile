@@ -89,6 +89,11 @@ RUN curl -fsSL \
     "https://cdn.modrinth.com/data/MRwiW8AG/versions/zAGLk81q/Skript-Translate-1.3.jar" \
     -o plugins/Skript-Translate-1.3.jar
 
+# skript-db 1.5.0 (fork 4w3, marqué 1.20–1.21.4 mais charge sur Paper 26.x)
+RUN curl -fsSL \
+    "https://cdn.modrinth.com/data/wQPcgT79/versions/8qXzcJlI/skript-db-1.5.0.jar" \
+    -o plugins/skript-db-1.5.0.jar
+
 # ── Dépendances natives utilisées par les scripts Xeinoria ───────────────────
 # ProtocolLib 5.4.0 (dépendance de plusieurs addons + scripts)
 RUN curl -fsSL \

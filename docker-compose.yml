@@ -3,8 +3,10 @@ services:
     image: ghcr.io/xeinoria-studio/xeinoria-dev-env:latest
     # Pour build en local :  docker compose up --build
     build: .
+    container_name: xeinoria-dev
     ports:
       - "25565:25565"
+      - "24454:24454/udp"  # Simple Voice Chat
     volumes:
       # Vos scripts : créez des fichiers .sk dans ./scripts/ et rechargez avec /sk reload <nom>
       - ./scripts:/server/plugins/Skript/scripts
@@ -13,12 +15,25 @@ services:
     environment:
       JVM_XMX: "1G"
       JVM_XMS: "512M"
-      # REDIS_URL: "redis:6379"  # Décommentez si vous utilisez SkRedis
+      # SkRedis — laissez vide (REDIS_HOST="") pour désactiver complètement le plugin
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "password"
+    depends_on:
+      redis:
+        condition: service_healthy
     stdin_open: true
     tty: true
 
-  # Redis — décommentez si vos scripts utilisent SkRedis
-  # redis:
-  #   image: redis:7-alpine
-  #   ports:
-  #     - "6379:6379"
+  redis:
+    image: redis:7-alpine
+    container_name: xeinoria-dev-redis
+    command: ["redis-server", "--requirepass", "password"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "password", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    # Port exposé uniquement si vous voulez vous connecter depuis l'hôte :
+    # ports:
+    #   - "6379:6379"
