@@ -71,6 +71,13 @@ RUN curl -fsSL \
     "https://hangarcdn.papermc.io/plugins/TNE/VaultUnlocked/versions/2.17.0/PAPER/VaultUnlocked-2.17.0.jar" \
     -o plugins/VaultUnlocked-2.17.0.jar
 
+# TheNewEconomy 0.1.4.0 — fournit un provider Economy (legacy Vault + VaultUnlocked)
+# pour que Skript puisse hooker Vault. Même auteur que VaultUnlocked.
+# (Marqué 1.17-1.21.8 sur Hangar mais charge sans souci sur Paper 26.x.)
+RUN curl -fsSL \
+    "https://hangarcdn.papermc.io/plugins/TNE/TheNewEconomy/versions/0.1.4.0/PAPER/TNE-Paper-0.1.4.0.jar" \
+    -o plugins/TNE-Paper-0.1.4.0.jar
+
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 COPY entrypoint.sh /entrypoint.sh
 # Strip potential CRLF (Windows checkouts) and make executable.
