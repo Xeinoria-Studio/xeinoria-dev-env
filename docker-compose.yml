@@ -1,0 +1,24 @@
+services:
+  minecraft:
+    image: ghcr.io/xeinoria-studio/xeinoria-dev-env:latest
+    # Pour build en local :  docker compose up --build
+    build: .
+    ports:
+      - "25565:25565"
+    volumes:
+      # Vos scripts : créez des fichiers .sk dans ./scripts/ et rechargez avec /sk reload <nom>
+      - ./scripts:/server/plugins/Skript/scripts
+      # Plugins qui nécessitent un téléchargement manuel (SpigotMC) — voir plugins-extra/README.md
+      - ./plugins-extra:/server/plugins-extra
+    environment:
+      JVM_XMX: "1G"
+      JVM_XMS: "512M"
+      # REDIS_URL: "redis:6379"  # Décommentez si vous utilisez SkRedis
+    stdin_open: true
+    tty: true
+
+  # Redis — décommentez si vos scripts utilisent SkRedis
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
