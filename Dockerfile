@@ -73,7 +73,8 @@ RUN curl -fsSL \
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Strip potential CRLF (Windows checkouts) and make executable.
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 # ── Volume pour les scripts du contributeur ───────────────────────────────────
 VOLUME /server/plugins/Skript/scripts

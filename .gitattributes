@@ -1,0 +1,11 @@
+# Force LF on shell scripts and config files so Windows checkouts (CRLF)
+# don't break Docker images. Without this, entrypoint.sh becomes
+# "#!/bin/sh\r" and produces: exec /entrypoint.sh: no such file or directory.
+*.sh             text eol=lf
+*.sk             text eol=lf
+Dockerfile       text eol=lf
+entrypoint.sh    text eol=lf
+*.yml            text eol=lf
+*.yaml           text eol=lf
+*.properties     text eol=lf
+*.toml           text eol=lf
