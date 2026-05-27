@@ -33,10 +33,10 @@ RUN curl -fsSL \
     "https://github.com/SkriptLang/skript-reflect/releases/download/v2.6.3/skript-reflect-2.6.3.jar" \
     -o plugins/skript-reflect-2.6.3.jar
 
-# SkBee 3.22.0
+# SkBee 3.24.0 (compatible Paper 1.21.4)
 RUN curl -fsSL \
-    "https://cdn.modrinth.com/data/a0tlbHZO/versions/gzP50Xns/SkBee-3.22.0.jar" \
-    -o plugins/SkBee-3.22.0.jar
+    "https://cdn.modrinth.com/data/a0tlbHZO/versions/zyT8hOb8/SkBee-3.24.0.jar" \
+    -o plugins/SkBee-3.24.0.jar
 
 # skript-worldguard 1.0.1
 RUN curl -fsSL \

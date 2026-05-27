@@ -1,0 +1,26 @@
+# Smoke test — chargé par le CI pour valider l'environnement.
+# Émet des marqueurs `[XEINORIA_SMOKETEST]` que le workflow GitHub Actions parse.
+
+on load:
+    wait 3 seconds
+    set {_plugins} to "%plugins%"
+    broadcast "[XEINORIA_SMOKETEST] start"
+
+    # Skript lui-même
+    if {_plugins} contains "Skript":
+        broadcast "[XEINORIA_SMOKETEST] plugin=Skript=ok"
+    else:
+        broadcast "[XEINORIA_SMOKETEST] plugin=Skript=fail"
+
+    # Addons critiques sans dépendance externe (présence d'un plugin chargé)
+    # Note: SkRedis et skript-worldguard nécessitent Redis/WorldGuard et sont
+    # volontairement exclus du smoke test (testés via docker-compose si besoin).
+    set {_addons::*} to "SkBee", "skript-reflect", "Lusk", "SkProxy", "PlaceholderAPI", "Vault"
+    loop {_addons::*}:
+        set {_name} to loop-value
+        if {_plugins} contains {_name}:
+            broadcast "[XEINORIA_SMOKETEST] addon=%{_name}%=ok"
+        else:
+            broadcast "[XEINORIA_SMOKETEST] addon=%{_name}%=missing"
+
+    broadcast "[XEINORIA_SMOKETEST] done"

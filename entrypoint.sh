@@ -3,14 +3,24 @@ set -e
 
 SCRIPTS_DIR=/server/plugins/Skript/scripts
 GLOBAL_DIR=$SCRIPTS_DIR/global
+GLOBAL_REPO="${GLOBAL_REPO:-https://github.com/Xeinoria-Studio/xeinoria-scripts-global.git}"
 
-# ── Clone ou mise à jour des scripts globaux ──────────────────────────────────
+# ── Clone ou mise à jour des scripts globaux (non bloquant) ───────────────────
+mkdir -p "$GLOBAL_DIR"
 if [ ! -d "$GLOBAL_DIR/.git" ]; then
-    echo "[xeinoria-dev] Clonage des scripts globaux..."
-    git clone --depth=1 https://github.com/Xeinoria-Studio/xeinoria-scripts-global.git "$GLOBAL_DIR"
+    if [ -n "$(ls -A "$GLOBAL_DIR" 2>/dev/null)" ]; then
+        echo "[xeinoria-dev] global/ déjà rempli (mount local), pas de clone."
+    else
+        echo "[xeinoria-dev] Clonage des scripts globaux depuis $GLOBAL_REPO..."
+        if ! git clone --depth=1 "$GLOBAL_REPO" "$GLOBAL_DIR" 2>&1; then
+            echo "[xeinoria-dev] AVERTISSEMENT : clone échoué (repo privé ou hors-ligne)."
+            echo "[xeinoria-dev] Démarrage sans scripts globaux."
+            rm -rf "$GLOBAL_DIR"/* "$GLOBAL_DIR"/.git 2>/dev/null || true
+        fi
+    fi
 else
     echo "[xeinoria-dev] Mise à jour des scripts globaux..."
-    git -C "$GLOBAL_DIR" pull --ff-only 2>/dev/null || true
+    git -C "$GLOBAL_DIR" pull --ff-only 2>/dev/null || echo "[xeinoria-dev] pull échoué, on garde l'état actuel."
 fi
 
 # ── Plugins extras (plugins-extra/*.jar → plugins/) ───────────────────────────
