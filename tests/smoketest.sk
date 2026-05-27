@@ -15,7 +15,7 @@ on load:
     # Addons critiques sans dépendance externe (présence d'un plugin chargé)
     # Note: SkRedis et skript-worldguard nécessitent Redis/WorldGuard et sont
     # volontairement exclus du smoke test (testés via docker-compose si besoin).
-    set {_addons::*} to "SkBee", "skript-reflect", "Lusk", "SkProxy", "PlaceholderAPI", "Vault"
+    set {_addons::*} to "SkBee", "skript-reflect", "Lusk", "SkProxy", "PlaceholderAPI", "Vault", "skript-placeholders", "Skript-Translate", "ProtocolLib", "packetevents", "WorldEdit", "WorldGuard", "skript-worldguard", "LuckPerms", "CommandAPI", "DecentHolograms", "voicechat"
     loop {_addons::*}:
         set {_name} to loop-value
         if {_plugins} contains {_name}:
