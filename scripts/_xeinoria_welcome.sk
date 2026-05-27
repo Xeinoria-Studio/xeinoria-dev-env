@@ -81,6 +81,12 @@ on first join:
     send mini message from "     <dark_gray>(Ctrl+C dans un attach <red>tue</red> le serveur — à éviter.)</dark_gray>" to player
     send "" to player
 
+    send mini message from "<gold>● Dossiers montés (côté hôte)</gold>" to player
+    send mini message from "  <gray>•</gray> <white>scripts/</white> <gray>→ déposez vos <aqua>.sk</aqua> ici, puis <white>/sk reload <nom></white> en jeu.</gray>" to player
+    send mini message from "  <gray>•</gray> <white>plugins-extra/</white> <gray>→ déposez les <aqua>.jar</aqua> d'un plugin non livré dans l'image (ex : PermSk, jars privés). Copiés dans <white>plugins/</white> au démarrage.</gray>" to player
+    send mini message from "     <dark_gray>(Modifs prises en compte sans rebuild — les deux dossiers sont des volumes Docker.)</dark_gray>" to player
+    send "" to player
+
     send mini message from "<gold>● Crédits & licence</gold>" to player
     send mini message from "  <gray>Image <aqua>xeinoria-dev-env</aqua> par <white>Xeinoria Studio</white>.</gray>" to player
     send mini message from "  <gray>Code sous <click:open_url:'https://creativecommons.org/licenses/by-nc-sa/4.0/'><blue><u>CC BY-NC-SA 4.0</u></blue></click> — attribution requise, non commercial, partage à l'identique.</gray>" to player
