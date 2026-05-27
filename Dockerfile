@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-noble
+FROM eclipse-temurin:25-jre-noble
 
 # ── Outils système ────────────────────────────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /server
 
-# ── Paper 1.21.4 ─────────────────────────────────────────────────────────────
-ARG PAPER_BUILD=232
+# ── Paper 26.1.2 (CalVer, match prod) ────────────────────────────────────────
+# Build 66 du 26 mai 2026 (stable). API Fill v3 (PaperMC).
+ARG PAPER_VERSION=26.1.2
+ARG PAPER_BUILD=66
 RUN curl -fsSL \
-    "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/${PAPER_BUILD}/downloads/paper-1.21.4-${PAPER_BUILD}.jar" \
+    "https://fill-data.papermc.io/v1/objects/2c2af90d6ef0e823c272e7059873e3b7a24e07674e56e3b8d6c63ebff03cf827/paper-${PAPER_VERSION}-${PAPER_BUILD}.jar" \
     -o paper.jar
 
 # ── EULA & configuration minimale ────────────────────────────────────────────
@@ -33,10 +35,10 @@ RUN curl -fsSL \
     "https://github.com/SkriptLang/skript-reflect/releases/download/v2.6.3/skript-reflect-2.6.3.jar" \
     -o plugins/skript-reflect-2.6.3.jar
 
-# SkBee 3.24.0 (compatible Paper 1.21.4)
+# SkBee 3.22.0 (version utilisée en prod Xeinoria)
 RUN curl -fsSL \
-    "https://cdn.modrinth.com/data/a0tlbHZO/versions/zyT8hOb8/SkBee-3.24.0.jar" \
-    -o plugins/SkBee-3.24.0.jar
+    "https://cdn.modrinth.com/data/a0tlbHZO/versions/gzP50Xns/SkBee-3.22.0.jar" \
+    -o plugins/SkBee-3.22.0.jar
 
 # skript-worldguard 1.0.1
 RUN curl -fsSL \
@@ -63,7 +65,8 @@ RUN curl -fsSL \
     "https://github.com/PlaceholderAPI/PlaceholderAPI/releases/download/2.12.2/PlaceholderAPI-2.12.2.jar" \
     -o plugins/PlaceholderAPI-2.12.2.jar
 
-# VaultUnlocked (requis par certains scripts Vault)
+# VaultUnlocked 2.17.0 (dernière version publique sur Hangar ;
+# la prod utilise 2.19.1 build privé, non requis pour le dev env)
 RUN curl -fsSL \
     "https://hangarcdn.papermc.io/plugins/TNE/VaultUnlocked/versions/2.17.0/PAPER/VaultUnlocked-2.17.0.jar" \
     -o plugins/VaultUnlocked-2.17.0.jar
