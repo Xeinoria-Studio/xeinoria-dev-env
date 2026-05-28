@@ -31,10 +31,6 @@ on:
         description: "Timeout du démarrage de Paper (s)"
         type: number
         default: 240
-      image:
-        description: "Tag de l'image Docker à utiliser"
-        type: string
-        default: "ghcr.io/xeinoria-studio/xeinoria-dev-env:latest"
 
 jobs:
   validate:
@@ -42,15 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
     steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout caller repo
         uses: actions/checkout@v4
         with:
@@ -63,15 +51,28 @@ jobs:
           repository: Xeinoria-Studio/xeinoria-scripts-global
           path: ci-global
 
-      - name: Checkout xeinoria-dev-env (runner script)
+      - name: Checkout xeinoria-dev-env (Dockerfile + runner script)
         uses: actions/checkout@v4
         with:
           repository: Xeinoria-Studio/xeinoria-dev-env
           path: ci-dev-env
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (GHA cache)
+        uses: docker/build-push-action@v6
+        with:
+          context: ci-dev-env
+          platforms: linux/amd64
+          load: true
+          tags: xeinoria-dev-env:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Run Skript CI
         env:
-          IMAGE: ${{ inputs.image }}
+          IMAGE: xeinoria-dev-env:ci
           SCRIPTS_DIR: ${{ github.workspace }}/caller/${{ inputs.scripts-path }}
           GLOBAL_DIR: ${{ inputs.checkout-global && format('{0}/ci-global', github.workspace) || '' }}
           MOUNT_NAME: ${{ inputs.mount-name }}
