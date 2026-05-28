@@ -59,14 +59,13 @@ docker run -d --name "$CONTAINER_NAME" \
     "${MOUNT_ARGS[@]}" \
     "$IMAGE" >/dev/null
 
-echo "[skript-ci] container démarré, capture des logs (timeout=${TIMEOUT}s)…"
-( docker logs -f "$CONTAINER_NAME" > "$LOG_FILE" 2>&1 ) &
-LOG_PID=$!
+echo "[skript-ci] container démarré, attente démarrage Paper (timeout=${TIMEOUT}s)…"
 
 deadline=$(( $(date +%s) + TIMEOUT ))
 ready=0
 while [ "$(date +%s)" -lt "$deadline" ]; do
-    if grep -qE 'Done \([0-9.]+s\)!' "$LOG_FILE" 2>/dev/null; then
+    # Vérifier dans les logs courants si Paper a fini de démarrer
+    if docker logs "$CONTAINER_NAME" 2>&1 | grep -qE 'Done \([0-9.]+s\)!'; then
         ready=1
         break
     fi
@@ -74,13 +73,15 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
         echo "[skript-ci] container arrêté prématurément"
         break
     fi
-    sleep 2
+    sleep 3
 done
 
-# Laisser Skript finir d'imprimer ses erreurs après le "Done".
-sleep 8
-kill "$LOG_PID" 2>/dev/null || true
-wait "$LOG_PID" 2>/dev/null || true
+# Laisser Skript finir d'imprimer toutes ses erreurs post-Done!
+sleep 10
+
+# Dump complet des logs (fiable — pas de race condition)
+echo "[skript-ci] capture des logs finaux…"
+docker logs "$CONTAINER_NAME" > "$LOG_FILE" 2>&1
 
 if [ "$ready" -ne 1 ]; then
     echo "[skript-ci] ECHEC : Paper n'a pas fini son démarrage en ${TIMEOUT}s"
@@ -90,8 +91,8 @@ if [ "$ready" -ne 1 ]; then
 fi
 
 # ── Détection des erreurs Skript ──────────────────────────────────────────────
-# Signal canonique de Skript : "Encountered N errors while [re]loading 'foo.sk'!"
-# On ignore les scripts hors de notre mount (ex. scripts internes du conteneur).
+# Signal 1 : "Encountered N errors while [re]loading 'foo.sk'!"  (ligne de résumé)
+# Signal 2 : "Can't understand ..." / "Invalid ..." etc.            (ligne de détail)
 ERRORS=0
 if grep -E "Encountered [0-9]+ error.* while (re)?loading" "$LOG_FILE" > "$ERR_FILE" 2>/dev/null; then
     if [ -s "$ERR_FILE" ]; then
@@ -99,9 +100,14 @@ if grep -E "Encountered [0-9]+ error.* while (re)?loading" "$LOG_FILE" > "$ERR_F
     fi
 fi
 
-# Détails (lignes précédentes contenant les vraies erreurs Skript)
+# Fallback : lignes d'erreur individuelles de Skript même sans résumé
 DETAILS_FILE="$(mktemp)"
-grep -nE "^\[.*\] \[Skript\] (Line [0-9]+:|Can't understand|.*is not a |Invalid |There's no )" "$LOG_FILE" > "$DETAILS_FILE" 2>/dev/null || true
+grep -E "(Can't understand|Invalid |There's no |is not a |Line [0-9]+:.*\.sk)" "$LOG_FILE" > "$DETAILS_FILE" 2>/dev/null || true
+
+# Si pas de ligne "Encountered" mais des lignes de détail → aussi une erreur
+if [ "$ERRORS" -eq 0 ] && [ -s "$DETAILS_FILE" ]; then
+    ERRORS=$(wc -l < "$DETAILS_FILE")
+fi
 
 echo "[skript-ci] === résumé ==="
 echo "[skript-ci] scripts en erreur : $ERRORS"
