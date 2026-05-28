@@ -40,7 +40,17 @@ jobs:
   validate:
     name: Skript validate (${{ inputs.mount-name }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout caller repo
         uses: actions/checkout@v4
         with:
