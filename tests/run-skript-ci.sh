@@ -23,11 +23,14 @@ MOUNT_NAME="${MOUNT_NAME:-repo}"
 GLOBAL_DIR="${GLOBAL_DIR:-}"
 TIMEOUT="${TIMEOUT:-240}"
 CONTAINER_NAME="xeinoria-ci-$$"
+REDIS_NAME="xeinoria-ci-redis-$$"
+NET_NAME="xeinoria-ci-net-$$"
 LOG_FILE="$(mktemp)"
 ERR_FILE="$(mktemp)"
 
 cleanup() {
-    docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+    docker rm -f "$CONTAINER_NAME" "$REDIS_NAME" >/dev/null 2>&1 || true
+    docker network rm "$NET_NAME" >/dev/null 2>&1 || true
     rm -f "$LOG_FILE" "$ERR_FILE"
 }
 trap cleanup EXIT
@@ -52,10 +55,28 @@ if [ -n "$GLOBAL_DIR" ]; then
     MOUNT_ARGS+=( -v "$GLOBAL_DIR:/server/plugins/Skript/scripts/global:ro" )
 fi
 
-# REDIS_HOST vide = désactive SkRedis (pas de Redis disponible dans le runner).
-docker run -d --name "$CONTAINER_NAME" \
+# ── Réseau Docker isolé + sidecar Redis ──────────────────────────────────────
+echo "[skript-ci] création du réseau Docker $NET_NAME"
+docker network create "$NET_NAME" >/dev/null
+
+echo "[skript-ci] démarrage de Redis (sidecar)…"
+docker run -d --name "$REDIS_NAME" --network "$NET_NAME" \
+    redis:7-alpine redis-server --requirepass ci-redis-pass >/dev/null
+
+# Attendre que Redis soit prêt (max 20s)
+for i in $(seq 1 20); do
+    if docker exec "$REDIS_NAME" redis-cli -a ci-redis-pass ping 2>/dev/null | grep -q PONG; then
+        echo "[skript-ci] Redis prêt"
+        break
+    fi
+    sleep 1
+done
+
+docker run -d --name "$CONTAINER_NAME" --network "$NET_NAME" \
     -e JVM_XMX=1G -e JVM_XMS=512M \
-    -e REDIS_HOST= \
+    -e REDIS_HOST="$REDIS_NAME" \
+    -e REDIS_PORT=6379 \
+    -e REDIS_PASSWORD=ci-redis-pass \
     "${MOUNT_ARGS[@]}" \
     "$IMAGE" >/dev/null
 
