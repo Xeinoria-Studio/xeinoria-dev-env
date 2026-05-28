@@ -1,0 +1,71 @@
+name: Skript validation (reusable)
+
+# Workflow réutilisable : démarre l'image xeinoria-dev-env et valide qu'un dossier
+# de scripts .sk passe le parsing de Skript sans erreur.
+#
+# Appel typique depuis un repo Skript :
+#
+#   jobs:
+#     skript:
+#       uses: Xeinoria-Studio/xeinoria-dev-env/.github/workflows/skript-validate.yml@main
+#       with:
+#         mount-name: survie
+#         checkout-global: true
+
+on:
+  workflow_call:
+    inputs:
+      scripts-path:
+        description: "Sous-chemin (dans le repo appelant) à monter comme scripts"
+        type: string
+        default: "."
+      mount-name:
+        description: "Nom du sous-dossier sous /server/plugins/Skript/scripts/"
+        type: string
+        default: "repo"
+      checkout-global:
+        description: "Cloner xeinoria-scripts-global et le monter comme global/"
+        type: boolean
+        default: false
+      timeout-seconds:
+        description: "Timeout du démarrage de Paper (s)"
+        type: number
+        default: 240
+      image:
+        description: "Tag de l'image Docker à utiliser"
+        type: string
+        default: "ghcr.io/xeinoria-studio/xeinoria-dev-env:latest"
+
+jobs:
+  validate:
+    name: Skript validate (${{ inputs.mount-name }})
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout caller repo
+        uses: actions/checkout@v4
+        with:
+          path: caller
+
+      - name: Checkout xeinoria-scripts-global
+        if: ${{ inputs.checkout-global }}
+        uses: actions/checkout@v4
+        with:
+          repository: Xeinoria-Studio/xeinoria-scripts-global
+          path: ci-global
+
+      - name: Checkout xeinoria-dev-env (runner script)
+        uses: actions/checkout@v4
+        with:
+          repository: Xeinoria-Studio/xeinoria-dev-env
+          path: ci-dev-env
+
+      - name: Run Skript CI
+        env:
+          IMAGE: ${{ inputs.image }}
+          SCRIPTS_DIR: ${{ github.workspace }}/caller/${{ inputs.scripts-path }}
+          GLOBAL_DIR: ${{ inputs.checkout-global && format('{0}/ci-global', github.workspace) || '' }}
+          MOUNT_NAME: ${{ inputs.mount-name }}
+          TIMEOUT: ${{ inputs.timeout-seconds }}
+        run: |
+          chmod +x ci-dev-env/tests/run-skript-ci.sh
+          ci-dev-env/tests/run-skript-ci.sh
